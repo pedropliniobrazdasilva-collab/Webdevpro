@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebDev Pro - Criação de Sites Profissionais</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            },
+            colors: {
+              primary: {
+                DEFAULT: '#4f46e5',
+                '50': '#eef2ff',
+                '100': '#e0e7ff',
+                '200': '#c7d2fe',
+                '300': '#a5b4fc',
+                '400': '#818cf8',
+                '500': '#6366f1',
+                '600': '#4f46e5',
+                '700': '#4338ca',
+                '800': '#3730a3',
+                '900': '#312e81',
+                '950': '#1e1b4b',
+              },
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      html {
+        scroll-behavior: smooth;
+        overflow-x: hidden;
+      }
+      body {
+        overflow-x: hidden;
+      }
+      .fade-in-section {
+        opacity: 0;
+        transform: translateY(20px);
+        visibility: hidden;
+        transition: opacity 0.6s ease-out, transform 0.6s ease-out, visibility 0.6s;
+        will-change: opacity, transform, visibility;
+      }
+      .fade-in-section.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+        visibility: visible;
+      }
+      
+      @keyframes aurora {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+
+      .animated-aurora {
+        position: relative;
+      }
+
+      .animated-aurora::before {
+        content: '';
+        position: absolute;
+        top: -100px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 150%;
+        max-width: 1200px;
+        height: 400px;
+        background-image: radial-gradient(ellipse at center, rgba(79, 70, 229, 0.2), transparent 70%);
+        animation: aurora 15s ease-in-out infinite;
+        z-index: 0;
+        filter: blur(80px);
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react-intersection-observer": "https://aistudiocdn.com/react-intersection-observer@^9.13.0"
+  }
+}
+</script>
+</head>
+  <body class="bg-slate-900 text-white font-sans antialiased animated-aurora">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
