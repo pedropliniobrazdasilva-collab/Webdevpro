@@ -1,14 +1,14 @@
 import React, { useEffect } from 'react';
-import Header from './components/Header';
-import HeroSection from './components/HeroSection';
-import AboutSection from './components/AboutSection';
-import BenefitsSection from './components/BenefitsSection';
-import PricingSection from './components/PricingSection';
-import HowItWorksSection from './components/HowItWorksSection';
-import TestimonialsSection from './components/TestimonialsSection';
-import ContactForm from './components/ContactForm';
-import Footer from './components/Footer';
-import FadeInSection from './components/FadeInSection';
+import Header from './components/Header.tsx';
+import HeroSection from './components/HeroSection.tsx';
+import AboutSection from './components/AboutSection.tsx';
+import BenefitsSection from './components/BenefitsSection.tsx';
+import PricingSection from './components/PricingSection.tsx';
+import HowItWorksSection from './components/HowItWorksSection.tsx';
+import TestimonialsSection from './components/TestimonialsSection.tsx';
+import ContactForm from './components/ContactForm.tsx';
+import Footer from './components/Footer.tsx';
+import FadeInSection from './components/FadeInSection.tsx';
 
 const App: React.FC = () => {
   useEffect(() => {

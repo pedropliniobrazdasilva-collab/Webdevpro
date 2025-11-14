@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChartBarIcon, ShieldCheckIcon, GoogleIcon, UsersIcon, ClockIcon, CheckCircleIcon } from './icons/FeatureIcons';
+import { ChartBarIcon, ShieldCheckIcon, GoogleIcon, UsersIcon, ClockIcon, CheckCircleIcon } from './icons/FeatureIcons.tsx';
 
 const benefits = [
   {
