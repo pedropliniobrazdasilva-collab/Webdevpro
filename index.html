@@ -87,22 +87,9 @@
         filter: blur(80px);
       }
     </style>
-  <script type="importmap">
-{
-  "imports": {
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "react": "https://aistudiocdn.com/react@^19.2.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "react-intersection-observer": "https://aistudiocdn.com/react-intersection-observer@^9.13.0"
-  }
-}
-</script>
-<!-- Adicionado para transpilar TSX no navegador -->
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-</head>
+  </head>
   <body class="bg-slate-900 text-white font-sans antialiased animated-aurora">
     <div id="root"></div>
-    <!-- Alterado para usar o Babel para transpilar o TSX -->
-    <script type="text/babel" data-presets="react,typescript" src="/index.tsx"></script>
+    <script type="module" src="/index.tsx"></script>
   </body>
 </html>
