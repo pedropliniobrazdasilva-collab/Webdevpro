@@ -1,16 +1,26 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import LandingPage from './components/LandingPage.tsx';
-import AdminPage from './components/AdminPage.tsx';
-import SettingsPage from './components/SettingsPage.tsx';
+import React, { useState, useEffect, useMemo, lazy, Suspense } from 'react';
 import AdminLoginModal from './components/admin/AdminLoginModal.tsx';
 import AuthWall from './components/auth/AuthWall.tsx';
 import { Order } from './data/mock-orders.ts';
 import { User } from './types/user.ts';
 
+// Dynamic imports for code splitting
+const LandingPage = lazy(() => import('./components/LandingPage.tsx'));
+const AdminPage = lazy(() => import('./components/AdminPage.tsx'));
+const SettingsPage = lazy(() => import('./components/SettingsPage.tsx'));
+
+
 // Chaves para armazenar dados no navegador
 const SESSION_STORAGE_KEY = 'webdevpro_currentUser';
 const USERS_STORAGE_KEY = 'webdevpro_users';
 const ORDERS_STORAGE_KEY = 'webdevpro_orders';
+
+// Fallback loader for Suspense
+const AppSpinner: React.FC = () => (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50">
+    <div className="loader-spinner"></div>
+  </div>
+);
 
 const App: React.FC = () => {
   // Estado da Aplicação
@@ -262,7 +272,9 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen">
-      {renderContent()}
+      <Suspense fallback={<AppSpinner />}>
+        {renderContent()}
+      </Suspense>
       
       <AdminLoginModal 
         isOpen={isAdminLoginModalOpen}
