@@ -6,7 +6,7 @@ import BenefitsSection from './components/BenefitsSection.tsx';
 import PricingSection from './components/PricingSection.tsx';
 import HowItWorksSection from './components/HowItWorksSection.tsx';
 import TestimonialsSection from './components/TestimonialsSection.tsx';
-import ContactForm from './components/ContactForm.tsx';
+import ContactSection from './components/ContactSection.tsx';
 import Footer from './components/Footer.tsx';
 import FadeInSection from './components/FadeInSection.tsx';
 
@@ -66,7 +66,7 @@ const App: React.FC = () => {
           <TestimonialsSection />
         </FadeInSection>
         <FadeInSection>
-          <ContactForm />
+          <ContactSection />
         </FadeInSection>
       </main>
       <Footer />

@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 const steps = [
@@ -39,22 +40,29 @@ const HowItWorksSection: React.FC = () => {
           <div className="absolute left-1/2 top-4 h-[calc(100%-2rem)] w-px bg-slate-700 hidden md:block" aria-hidden="true"></div>
           
           <div className="space-y-12">
-            {steps.map((step, index) => (
-              <div key={index} className="md:grid md:grid-cols-2 md:gap-x-12 items-center relative">
-                <div className={`md:order-${index % 2 === 0 ? 1 : 2}`}>
-                  <div className="bg-slate-800 p-6 rounded-lg shadow-md border border-slate-700">
-                    <h3 className="text-xl font-semibold text-white mb-2 flex items-center">
-                      <span className="text-primary-400 mr-3 text-2xl">{step.number}</span>
-                      {step.title}
-                    </h3>
-                    <p className="text-slate-400">{step.description}</p>
+            {steps.map((step, index) => {
+              const isEven = index % 2 === 0;
+              const textOrderClass = isEven ? 'md:order-1' : 'md:order-2';
+              const dotOrderClass = isEven ? 'md:order-2' : 'md:order-1';
+              const dotContainerClass = `${dotOrderClass} hidden md:flex items-center justify-center`;
+
+              return (
+                <div key={index} className="md:grid md:grid-cols-2 md:gap-x-12 items-center relative">
+                  <div className={textOrderClass}>
+                    <div className="bg-slate-800 p-6 rounded-lg shadow-md border border-slate-700">
+                      <h3 className="text-xl font-semibold text-white mb-2 flex items-center">
+                        <span className="text-primary-400 mr-3 text-2xl">{step.number}</span>
+                        {step.title}
+                      </h3>
+                      <p className="text-slate-400">{step.description}</p>
+                    </div>
+                  </div>
+                  <div className={dotContainerClass}>
+                      <div className="w-5 h-5 bg-primary-500 rounded-full shadow-lg shadow-primary-500/50 ring-4 ring-slate-900"></div>
                   </div>
                 </div>
-                <div className={`md:order-${index % 2 === 0 ? 2 : 1} hidden md:flex items-center justify-center`}>
-                    <div className="w-5 h-5 bg-primary-500 rounded-full shadow-lg shadow-primary-500/50 ring-4 ring-slate-900"></div>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>

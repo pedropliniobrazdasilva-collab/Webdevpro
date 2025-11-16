@@ -9,8 +9,8 @@ const AboutSection: React.FC = () => {
             <div className="absolute -inset-2 bg-gradient-to-r from-primary-600 to-teal-500 rounded-lg blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
             <div className="relative">
               <img 
-                src="https://picsum.photos/seed/developer/600/400" 
-                alt="Desenvolvedor trabalhando em um site" 
+                src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=2072&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
+                alt="Mesa de trabalho de um desenvolvedor com um laptop exibindo código, mostrando um ambiente de desenvolvimento focado." 
                 className="rounded-lg shadow-2xl z-10 relative"
               />
               <div className="absolute -bottom-4 -left-4 w-1/2 h-1/2 border-l-4 border-b-4 border-primary-400 rounded-bl-lg z-20 transition-all duration-300 group-hover:w-full group-hover:h-full"></div>
