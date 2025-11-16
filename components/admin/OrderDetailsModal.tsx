@@ -1,5 +1,6 @@
 import React from 'react';
 import { Order } from '../../data/mock-orders.ts';
+import { planPrices, hostingPrices } from '../../data/plans.ts';
 
 interface OrderDetailsModalProps {
   order: Order | null;
@@ -14,7 +15,6 @@ const StatusBadge: React.FC<{ status: Order['status'] }> = ({ status }) => {
     'Aguardando Confirmação': "bg-yellow-500/80",
     Pendente: "bg-sky-500/80",
     'Em produção': "bg-blue-500/80",
-    // FIX: Corrected typo from 'Conclúido' to 'Concluído' to match the type definition.
     Concluído: "bg-green-500/80",
     Cancelado: "bg-red-500/80",
   };
@@ -75,11 +75,11 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ order, isOpen, on
             <div className="bg-slate-900/50 rounded-lg p-4 divide-y divide-slate-700">
               <div className="flex justify-between py-2">
                 <span className="text-slate-300">{order.sitePlan}</span>
-                <span className="text-white font-medium">R$ {sitePlans[order.sitePlan].toFixed(2).replace('.', ',')}</span>
+                <span className="text-white font-medium">R$ {planPrices[order.sitePlan].toFixed(2).replace('.', ',')}</span>
               </div>
               <div className="flex justify-between py-2">
                 <span className="text-slate-300">{order.hostingPlan}</span>
-                <span className="text-white font-medium">R$ {hostingPlans[order.hostingPlan].toFixed(2).replace('.', ',')}</span>
+                <span className="text-white font-medium">R$ {hostingPrices[order.hostingPlan].toFixed(2).replace('.', ',')}</span>
               </div>
               <div className="flex justify-between pt-4 font-bold text-lg">
                 <span className="text-primary-400">Total</span>
@@ -124,18 +124,6 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ order, isOpen, on
       </div>
     </div>
   );
-};
-
-const sitePlans = {
-  'Site Básico': 55.80,
-  'Site Intermediário': 89.90,
-  'Site Avançado': 110.00,
-};
-
-const hostingPlans = {
-  'Hospedagem Básica': 5.90,
-  'Hospedagem Intermediária': 25.50,
-  'Hospedagem Avançada': 52.49,
 };
 
 export default OrderDetailsModal;

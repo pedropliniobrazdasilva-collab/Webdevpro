@@ -6,6 +6,79 @@ interface AuthWallProps {
   onSignUp: (newUser: User) => boolean;
 }
 
+const inputStyles = "w-full bg-slate-700/50 border-2 border-slate-600 rounded-md py-3 px-4 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition duration-200";
+
+// --- Login Form Component ---
+interface LoginViewProps {
+    username: string;
+    password: string;
+    error: string;
+    onUsernameChange: (value: string) => void;
+    onPasswordChange: (value: string) => void;
+    onSubmit: (e: React.FormEvent) => void;
+    onSwitchToSignUp: () => void;
+}
+
+const LoginView: React.FC<LoginViewProps> = ({ username, password, error, onUsernameChange, onPasswordChange, onSubmit, onSwitchToSignUp }) => (
+    <form onSubmit={onSubmit} className="p-8 space-y-4 w-full animate-fade-in-fast">
+        <h2 className="text-2xl font-bold text-white text-center mb-4">Bem-vindo de volta!</h2>
+        <div>
+            <label className="block text-sm font-medium text-slate-300 mb-2">Nome de Usuário</label>
+            <input type="text" value={username} onChange={(e) => onUsernameChange(e.target.value)} className={inputStyles} required autoFocus />
+        </div>
+        <div>
+            <label className="block text-sm font-medium text-slate-300 mb-2">Senha</label>
+            <input type="password" value={password} onChange={(e) => onPasswordChange(e.target.value)} className={inputStyles} required />
+        </div>
+        {error && <p className="text-red-400 text-sm text-center">{error}</p>}
+        <button type="submit" className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-lg transition-colors">Entrar</button>
+        <p className="text-sm text-center text-slate-400">
+            Não tem uma conta?{' '}
+            <button type="button" onClick={onSwitchToSignUp} className="font-semibold text-primary-400 hover:underline">Crie uma aqui</button>
+        </p>
+    </form>
+);
+
+
+// --- Sign Up Form Component ---
+interface SignUpViewProps {
+    username: string;
+    password: string;
+    confirmPassword: string;
+    error: string;
+    onUsernameChange: (value: string) => void;
+    onPasswordChange: (value: string) => void;
+    onConfirmPasswordChange: (value: string) => void;
+    onSubmit: (e: React.FormEvent) => void;
+    onSwitchToLogin: () => void;
+}
+
+const SignUpView: React.FC<SignUpViewProps> = ({ username, password, confirmPassword, error, onUsernameChange, onPasswordChange, onConfirmPasswordChange, onSubmit, onSwitchToLogin }) => (
+    <form onSubmit={onSubmit} className="p-8 space-y-4 w-full animate-fade-in-fast">
+        <h2 className="text-2xl font-bold text-white text-center mb-4">Crie sua Conta</h2>
+        <div>
+            <label className="block text-sm font-medium text-slate-300 mb-2">Nome de Usuário</label>
+            <input type="text" value={username} onChange={(e) => onUsernameChange(e.target.value)} className={inputStyles} required />
+        </div>
+        <div>
+            <label className="block text-sm font-medium text-slate-300 mb-2">Senha (mín. 8 caracteres)</label>
+            <input type="password" value={password} onChange={(e) => onPasswordChange(e.target.value)} className={inputStyles} required />
+        </div>
+        <div>
+            <label className="block text-sm font-medium text-slate-300 mb-2">Confirmar Senha</label>
+            <input type="password" value={confirmPassword} onChange={(e) => onConfirmPasswordChange(e.target.value)} className={inputStyles} required />
+        </div>
+        {error && <p className="text-red-400 text-sm text-center">{error}</p>}
+        <button type="submit" className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-lg transition-colors">Criar Conta</button>
+        <p className="text-sm text-center text-slate-400">
+            Já tem uma conta?{' '}
+            <button type="button" onClick={onSwitchToLogin} className="font-semibold text-primary-400 hover:underline">Faça login</button>
+        </p>
+    </form>
+);
+
+
+// --- Main AuthWall Component ---
 const AuthWall: React.FC<AuthWallProps> = ({ onLogin, onSignUp }) => {
   const [isLoginView, setIsLoginView] = useState(true);
   
@@ -45,52 +118,6 @@ const AuthWall: React.FC<AuthWallProps> = ({ onLogin, onSignUp }) => {
         setSignUpError('Falha ao criar conta. O nome de usuário pode já existir.');
     }
   };
-
-  const inputStyles = "w-full bg-slate-700/50 border-2 border-slate-600 rounded-md py-3 px-4 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition duration-200";
-
-  const LoginView = () => (
-    <form onSubmit={handleLoginSubmit} className="p-8 space-y-4 w-full animate-fade-in-fast">
-      <h2 className="text-2xl font-bold text-white text-center mb-4">Bem-vindo de volta!</h2>
-      <div>
-        <label className="block text-sm font-medium text-slate-300 mb-2">Nome de Usuário</label>
-        <input type="text" value={loginUsername} onChange={(e) => setLoginUsername(e.target.value)} className={inputStyles} required autoFocus />
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-slate-300 mb-2">Senha</label>
-        <input type="password" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} className={inputStyles} required />
-      </div>
-      {loginError && <p className="text-red-400 text-sm text-center">{loginError}</p>}
-      <button type="submit" className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-lg transition-colors">Entrar</button>
-      <p className="text-sm text-center text-slate-400">
-        Não tem uma conta?{' '}
-        <button type="button" onClick={() => setIsLoginView(false)} className="font-semibold text-primary-400 hover:underline">Crie uma aqui</button>
-      </p>
-    </form>
-  );
-
-  const SignUpView = () => (
-      <form onSubmit={handleSignUpSubmit} className="p-8 space-y-4 w-full animate-fade-in-fast">
-        <h2 className="text-2xl font-bold text-white text-center mb-4">Crie sua Conta</h2>
-        <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">Nome de Usuário</label>
-          <input type="text" value={signUpUsername} onChange={(e) => setSignUpUsername(e.target.value)} className={inputStyles} required autoFocus />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">Senha (mín. 8 caracteres)</label>
-          <input type="password" value={signUpPassword} onChange={(e) => setSignUpPassword(e.target.value)} className={inputStyles} required />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">Confirmar Senha</label>
-          <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className={inputStyles} required />
-        </div>
-        {signUpError && <p className="text-red-400 text-sm text-center">{signUpError}</p>}
-        <button type="submit" className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-lg transition-colors">Criar Conta</button>
-        <p className="text-sm text-center text-slate-400">
-          Já tem uma conta?{' '}
-          <button type="button" onClick={() => setIsLoginView(true)} className="font-semibold text-primary-400 hover:underline">Faça login</button>
-        </p>
-      </form>
-  );
   
   return (
     <div className="fixed inset-0 z-50 bg-slate-900 flex flex-col items-center justify-center p-4">
@@ -104,7 +131,29 @@ const AuthWall: React.FC<AuthWallProps> = ({ onLogin, onSignUp }) => {
         <p className="text-slate-300 text-center mb-8">Faça login ou crie uma conta para continuar.</p>
         
         <div className="bg-slate-800/80 backdrop-blur-sm border border-slate-700 rounded-lg shadow-2xl w-full">
-           {isLoginView ? <LoginView /> : <SignUpView />}
+           {isLoginView ? (
+              <LoginView 
+                username={loginUsername}
+                password={loginPassword}
+                error={loginError}
+                onUsernameChange={setLoginUsername}
+                onPasswordChange={setLoginPassword}
+                onSubmit={handleLoginSubmit}
+                onSwitchToSignUp={() => setIsLoginView(false)}
+              />
+            ) : (
+              <SignUpView
+                username={signUpUsername}
+                password={signUpPassword}
+                confirmPassword={confirmPassword}
+                error={signUpError}
+                onUsernameChange={setSignUpUsername}
+                onPasswordChange={setSignUpPassword}
+                onConfirmPasswordChange={setConfirmPassword}
+                onSubmit={handleSignUpSubmit}
+                onSwitchToLogin={() => setIsLoginView(true)}
+              />
+            )}
         </div>
       </div>
     </div>

@@ -4,7 +4,7 @@ import AdminPage from './components/AdminPage.tsx';
 import SettingsPage from './components/SettingsPage.tsx';
 import AdminLoginModal from './components/admin/AdminLoginModal.tsx';
 import AuthWall from './components/auth/AuthWall.tsx';
-import { Order, mockOrders } from './data/mock-orders.ts';
+import { Order } from './data/mock-orders.ts';
 import { User } from './types/user.ts';
 
 // Chaves para armazenar dados no navegador
@@ -24,6 +24,12 @@ const App: React.FC = () => {
   // Estado de Autenticação de Administrador
   const [isAdminLoginModalOpen, setIsAdminLoginModalOpen] = useState(false);
 
+  // Helper function to save orders to state and localStorage
+  const saveOrders = (updatedOrders: Order[]) => {
+    setOrders(updatedOrders);
+    localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(updatedOrders));
+  };
+  
   // Efeito para carregar dados da sessão e remover o loader inicial
   useEffect(() => {
     // Carrega usuário logado da sessão
@@ -37,19 +43,29 @@ const App: React.FC = () => {
       sessionStorage.removeItem(SESSION_STORAGE_KEY);
     }
     
-    // Carrega pedidos do localStorage
+    // Carrega ou inicializa usuários do localStorage para garantir consistência
+    try {
+        const storedUsers = localStorage.getItem(USERS_STORAGE_KEY);
+        if (!storedUsers) {
+            localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify([]));
+        }
+    } catch (error) {
+        console.error("Failed to process users from local storage:", error);
+        localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify([]));
+    }
+    
+    // Carrega pedidos do localStorage ou inicia com array vazio
     try {
         const storedOrders = localStorage.getItem(ORDERS_STORAGE_KEY);
         if (storedOrders) {
             setOrders(JSON.parse(storedOrders));
         } else {
-            // Se não houver pedidos, inicializa com os mocks e salva
-            setOrders(mockOrders);
-            localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(mockOrders));
+            setOrders([]);
+            localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify([]));
         }
     } catch (error) {
         console.error("Failed to parse orders from local storage:", error);
-        setOrders(mockOrders); // Fallback para os mocks em caso de erro
+        setOrders([]); // Fallback para vazio em caso de erro
     }
 
     const loader = document.getElementById('loader');
@@ -62,14 +78,6 @@ const App: React.FC = () => {
     
     setIsAppLoading(false);
   }, []);
-
-  // Efeito para salvar os pedidos no localStorage sempre que forem alterados
-  useEffect(() => {
-    // Evita salvar um array vazio na primeira renderização antes dos dados serem carregados
-    if (orders.length > 0) {
-      localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(orders));
-    }
-  }, [orders]);
 
 
   // --- Lógica de Navegação ---
@@ -145,13 +153,12 @@ const App: React.FC = () => {
 
     // Se o nome de usuário foi alterado, atualiza os pedidos associados
     if (updatedUserInfo.username && updatedUserInfo.username.toLowerCase() !== oldUsername.toLowerCase()) {
-      setOrders(prevOrders => 
-        prevOrders.map(order => 
-          order.username.toLowerCase() === oldUsername.toLowerCase() 
-            ? { ...order, username: updatedUser.username } 
-            : order
-        )
+      const updatedOrders = orders.map(order => 
+        order.username.toLowerCase() === oldUsername.toLowerCase() 
+          ? { ...order, username: updatedUser.username } 
+          : order
       );
+      saveOrders(updatedOrders);
     }
 
     localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
@@ -170,7 +177,8 @@ const App: React.FC = () => {
       localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
       
       // Remove os pedidos associados ao usuário
-      setOrders(prevOrders => prevOrders.filter(order => order.username.toLowerCase() !== currentUser.username.toLowerCase()));
+      const updatedOrders = orders.filter(order => order.username.toLowerCase() !== currentUser.username.toLowerCase());
+      saveOrders(updatedOrders);
       
       handleLogout();
     }
@@ -178,28 +186,21 @@ const App: React.FC = () => {
 
   // --- Lógica de Gerenciamento de Pedidos ---
   const handleAddOrder = (newOrder: Order) => {
-    setOrders(prevOrders => [newOrder, ...prevOrders]);
+    const updatedOrders = [newOrder, ...orders];
+    saveOrders(updatedOrders);
   };
 
   const handleUpdateStatus = (orderId: string, newStatus: Order['status']) => {
-    setOrders(prevOrders =>
-      prevOrders.map(order =>
-        order.id === orderId ? { ...order, status: newStatus } : order
-      )
+    const updatedOrders = orders.map(order =>
+      order.id === orderId ? { ...order, status: newStatus } : order
     );
+    saveOrders(updatedOrders);
   };
 
   const handleDeleteOrder = (orderId: string) => {
     if (window.confirm('Tem certeza que deseja excluir este pedido permanentemente? Esta ação não pode ser desfeita.')) {
-      setOrders(prevOrders => prevOrders.filter(order => order.id !== orderId));
-    }
-  };
-  
-  const handleResetOrders = () => {
-    if (window.confirm('Tem certeza que deseja restaurar os dados? Todas as alterações e novos pedidos serão perdidos e substituídos pelos dados de demonstração.')) {
-        localStorage.removeItem(ORDERS_STORAGE_KEY);
-        setOrders(mockOrders);
-        localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(mockOrders));
+      const updatedOrders = orders.filter(order => order.id !== orderId);
+      saveOrders(updatedOrders);
     }
   };
 
@@ -217,7 +218,6 @@ const App: React.FC = () => {
             orders={orders}
             onUpdateStatus={handleUpdateStatus}
             onDeleteOrder={handleDeleteOrder}
-            onResetOrders={handleResetOrders}
           />
         );
       case 'settings':

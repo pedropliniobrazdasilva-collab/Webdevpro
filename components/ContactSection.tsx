@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { PixIcon } from './icons/PixIcon.tsx';
 import { Order } from '../data/mock-orders.ts';
 import { User } from '../types/user.ts';
+import { sitePlans, hostingOptions } from '../data/plans.ts';
 
 
 // ★★★ CONFIGURAções DO FREELANCER ★★★
@@ -69,20 +70,6 @@ const pixConfigAdvancedAdvanced = {
 };
 // ★★★ FIM DAS CONFIGURAÇÕES ★★★
 
-
-// Data for the wizard steps
-const sitePlans = [
-  { id: 'basico', name: 'Site Básico', price: 55.80, description: 'O ponto de partida perfeito para marcar sua presença digital com um site limpo, profissional e direto ao ponto.', recommended: false },
-  { id: 'intermediario', name: 'Site Intermediário', price: 89.90, description: 'Ideal para negócios em crescimento que buscam mais páginas, visibilidade no Google e ferramentas para captar clientes.', recommended: true },
-  { id: 'avancado', name: 'Site Avançado', price: 110.00, description: 'A solução definitiva para empresas que exigem máxima performance, SEO avançado e funcionalidades completas para escalar.', recommended: false },
-];
-
-const hostingOptions = [
-  { id: 'basica', name: 'Hospedagem Básica', price: 5.90, description: 'Garante estabilidade para sites institucionais e portfólios com tráfego inicial. O melhor custo-benefício para começar.', recommended: false },
-  { id: 'intermediaria', name: 'Hospedagem Intermediária', price: 25.50, description: 'O equilíbrio ideal entre performance e custo. Carregamento rápido para sites com tráfego moderado e lojas virtuais.', recommended: true },
-  { id: 'avancada', name: 'Hospedagem Avançada', price: 52.49, description: 'Performance máxima para e-commerces e sites com alto volume de acessos. Garante velocidade e estabilidade sob qualquer demanda.', recommended: false },
-];
-
 const stepsInfo = ['Site', 'Hospedagem', 'Dados', 'Revisão', 'Pagamento', 'Confirmação'];
 
 interface ContactSectionProps {
@@ -92,7 +79,7 @@ interface ContactSectionProps {
 
 const ContactSection: React.FC<ContactSectionProps> = ({ onAddOrder, currentUser }) => {
     const [step, setStep] = useState(1);
-    const [selections, setSelections] = useState<{plan: {id: string, name: string, price: number} | null, hosting: {id: string, name: string, price: number} | null}>({
+    const [selections, setSelections] = useState<{plan: typeof sitePlans[0] | null, hosting: typeof hostingOptions[0] | null}>({
         plan: null,
         hosting: null,
     });

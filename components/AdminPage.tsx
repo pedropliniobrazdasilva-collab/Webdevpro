@@ -10,10 +10,9 @@ interface AdminPageProps {
   orders: Order[];
   onUpdateStatus: (orderId: string, newStatus: Order['status']) => void;
   onDeleteOrder: (orderId: string) => void;
-  onResetOrders: () => void;
 }
 
-const AdminPage: React.FC<AdminPageProps> = ({ onGoBack, orders, onUpdateStatus, onDeleteOrder, onResetOrders }) => {
+const AdminPage: React.FC<AdminPageProps> = ({ onGoBack, orders, onUpdateStatus, onDeleteOrder }) => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -50,6 +49,11 @@ const AdminPage: React.FC<AdminPageProps> = ({ onGoBack, orders, onUpdateStatus,
     onDeleteOrder(orderId);
   }
   
+  const handleGoBackClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    onGoBack();
+  };
+  
   const MainContent = () => (
     <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
@@ -57,13 +61,14 @@ const AdminPage: React.FC<AdminPageProps> = ({ onGoBack, orders, onUpdateStatus,
           <h1 className="text-3xl font-bold text-white">Dashboard de Pedidos</h1>
           <p className="text-slate-400 mt-1">Visão geral dos pedidos e do faturamento.</p>
         </div>
-        <button 
-          onClick={onResetOrders}
-          className="mt-4 sm:mt-0 flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white font-semibold px-4 py-2 rounded-lg transition-colors text-sm"
+        <a 
+          href="#"
+          onClick={handleGoBackClick}
+          className="mt-4 sm:mt-0 flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-white font-semibold px-4 py-2 rounded-lg transition-colors text-sm"
         >
-          <RefreshIcon />
-          Restaurar Dados
-        </button>
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+          Voltar ao Menu
+        </a>
       </div>
 
 
@@ -89,7 +94,7 @@ const AdminPage: React.FC<AdminPageProps> = ({ onGoBack, orders, onUpdateStatus,
       {/* Sidebar */}
       <aside className="w-64 bg-slate-800/50 p-6 hidden md:flex flex-col flex-shrink-0 border-r border-slate-700/50">
           <div className="flex-shrink-0">
-            <a href="#" className="text-2xl font-bold text-white">
+            <a href="#" onClick={handleGoBackClick} className="text-2xl font-bold text-white text-left">
               WebDev<span className="text-primary-500">Pro</span>
             </a>
             <p className="text-xs text-slate-400">Admin Panel</p>
@@ -102,10 +107,10 @@ const AdminPage: React.FC<AdminPageProps> = ({ onGoBack, orders, onUpdateStatus,
            {/* Add other nav links here */}
         </nav>
         <div className="flex-shrink-0 mt-auto">
-           <button onClick={onGoBack} className="w-full flex items-center justify-center gap-2 text-sm text-slate-300 hover:bg-slate-700 hover:text-white px-4 py-3 rounded-lg font-semibold transition-colors">
+           <a href="#" onClick={handleGoBackClick} className="w-full flex items-center justify-center gap-2 text-sm text-slate-300 hover:bg-slate-700 hover:text-white px-4 py-3 rounded-lg font-semibold transition-colors">
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
               Voltar ao Site
-            </button>
+            </a>
             <div className="border-t border-slate-700 my-4"></div>
             <p className="text-sm text-slate-300">Admin Logado</p>
             <p className="text-xs text-slate-500">admin@webdevpro.com</p>

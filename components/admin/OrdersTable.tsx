@@ -25,7 +25,9 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewDetails, onUpda
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('Todos');
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-  const menuRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  
+  // Use a ref to store references to both the button and the menu wrapper for robust outside click detection
+  const menuRefs = useRef<{ [key: string]: { wrapper: HTMLDivElement | null, button: HTMLButtonElement | null } }>({});
   
   const statusOrder: Record<Order['status'], number> = {
     'Aguardando Confirmação': 1,
@@ -35,13 +37,18 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewDetails, onUpda
     'Cancelado': 5,
   };
   
-  // Closes dropdown when clicking outside
+  // A more robust effect to close the dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (openMenuId && menuRefs.current[openMenuId] && !menuRefs.current[openMenuId]!.contains(event.target as Node)) {
+      if (!openMenuId) return;
+
+      const menu = menuRefs.current[openMenuId];
+      // Close menu if the click is outside both the button and the menu panel itself
+      if (menu && menu.wrapper && !menu.wrapper.contains(event.target as Node) && menu.button && !menu.button.contains(event.target as Node)) {
         setOpenMenuId(null);
       }
     };
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
@@ -121,16 +128,23 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewDetails, onUpda
           </thead>
           <tbody className="bg-slate-800 divide-y divide-slate-700">
             {sortedAndFilteredOrders.length > 0 ? sortedAndFilteredOrders.map(order => (
-              <tr key={order.id} className="hover:bg-slate-700/50 transition-colors">
+              <tr key={order.id} className="hover:bg-slate-700/50 transition-colors relative">
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{order.id}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{order.customer.name}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300 font-mono">{order.username}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{new Date(order.date).toLocaleDateString('pt-BR')}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">R$ {order.totalPrice.toFixed(2).replace('.', ',')}</td>
                 <td className="px-6 py-4 whitespace-nowrap"><StatusBadge status={order.status} /></td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-center relative">
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
                   <button
-                    onClick={() => setOpenMenuId(openMenuId === order.id ? null : order.id)}
+                     ref={el => {
+                      if (!menuRefs.current[order.id]) menuRefs.current[order.id] = { wrapper: null, button: null };
+                      menuRefs.current[order.id].button = el;
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setOpenMenuId(openMenuId === order.id ? null : order.id);
+                    }}
                     className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-700 hover:bg-slate-600 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500"
                     aria-haspopup="true"
                     aria-expanded={openMenuId === order.id}
@@ -140,8 +154,11 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewDetails, onUpda
 
                   {openMenuId === order.id && (
                     <div
-                      ref={el => menuRefs.current[order.id] = el}
-                      className="absolute right-0 top-full mt-2 w-56 bg-slate-700 border border-slate-600 rounded-md shadow-lg z-10 animate-fade-in-fast origin-top-right"
+                      ref={el => {
+                        if (!menuRefs.current[order.id]) menuRefs.current[order.id] = { wrapper: null, button: null };
+                        menuRefs.current[order.id].wrapper = el;
+                      }}
+                      className="absolute right-0 top-full mt-2 w-56 bg-slate-700 border border-slate-600 rounded-md shadow-lg z-20 animate-fade-in-fast origin-top-right"
                     >
                       <div className="py-1">
                         <button onClick={() => { onViewDetails(order); setOpenMenuId(null); }} className="w-full text-left flex items-center px-4 py-2 text-sm text-slate-200 hover:bg-primary-500 hover:text-white transition-colors rounded-t-md">
