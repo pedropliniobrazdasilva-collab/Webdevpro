@@ -16,7 +16,6 @@ const App: React.FC = () => {
   // Estado da Aplicação
   const [view, setView] = useState<'landing' | 'admin' | 'settings'>('landing');
   const [orders, setOrders] = useState<Order[]>([]);
-  const [isAppLoading, setIsAppLoading] = useState(true);
   
   // Estado de Autenticação de Usuário
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -75,8 +74,6 @@ const App: React.FC = () => {
         loader.style.display = 'none';
       }, 500);
     }
-    
-    setIsAppLoading(false);
   }, []);
 
 
@@ -185,9 +182,19 @@ const App: React.FC = () => {
   };
 
   // --- Lógica de Gerenciamento de Pedidos ---
+   const triggerAdminNotification = (order: Order) => {
+    const notificationsEnabled = localStorage.getItem('webdevpro_notifications_enabled') === 'true';
+    if (notificationsEnabled && 'Notification' in window && Notification.permission === 'granted') {
+        const notification = new Notification('Novo pedido recebido!', {
+            body: `Cliente: ${order.customer.name}\nID: ${order.id}`,
+        });
+    }
+  };
+
   const handleAddOrder = (newOrder: Order) => {
     const updatedOrders = [newOrder, ...orders];
     saveOrders(updatedOrders);
+    triggerAdminNotification(newOrder);
   };
 
   const handleUpdateStatus = (orderId: string, newStatus: Order['status']) => {
@@ -246,10 +253,6 @@ const App: React.FC = () => {
           />
         );
     }
-  }
-  
-  if (isAppLoading) {
-    return null; // A tela de carregamento inicial é controlada pelo index.html
   }
 
   if (!currentUser) {

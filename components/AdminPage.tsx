@@ -1,9 +1,9 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import StatCard from './admin/StatCard.tsx';
 import OrdersTable from './admin/OrdersTable.tsx';
 import OrderDetailsModal from './admin/OrderDetailsModal.tsx';
 import { Order } from '../data/mock-orders.ts';
-import { TotalOrdersIcon, PendingOrdersIcon, CompletedOrdersIcon, TotalRevenueIcon, RefreshIcon } from './icons/AdminIcons.tsx';
+import { TotalOrdersIcon, PendingOrdersIcon, CompletedOrdersIcon, TotalRevenueIcon, RefreshIcon, BellIcon, BellSlashIcon } from './icons/AdminIcons.tsx';
 
 interface AdminPageProps {
   onGoBack: () => void;
@@ -15,6 +15,36 @@ interface AdminPageProps {
 const AdminPage: React.FC<AdminPageProps> = ({ onGoBack, orders, onUpdateStatus, onDeleteOrder }) => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // State for notifications
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [notificationPermission, setNotificationPermission] = useState(Notification.permission);
+
+  // Check notification status on mount
+  useEffect(() => {
+    const isEnabled = localStorage.getItem('webdevpro_notifications_enabled') === 'true';
+    setNotificationsEnabled(isEnabled && notificationPermission === 'granted');
+  }, [notificationPermission]);
+
+  const handleToggleNotifications = async () => {
+    if (notificationPermission === 'granted') {
+        const currentlyEnabled = localStorage.getItem('webdevpro_notifications_enabled') === 'true';
+        localStorage.setItem('webdevpro_notifications_enabled', String(!currentlyEnabled));
+        setNotificationsEnabled(!currentlyEnabled);
+    } else if (notificationPermission === 'denied') {
+        alert('As notificações foram bloqueadas nas configurações do seu navegador. Por favor, habilite-as manualmente para continuar.');
+    } else {
+        const permission = await Notification.requestPermission();
+        setNotificationPermission(permission);
+        if (permission === 'granted') {
+            localStorage.setItem('webdevpro_notifications_enabled', 'true');
+            setNotificationsEnabled(true);
+        } else {
+            localStorage.setItem('webdevpro_notifications_enabled', 'false');
+            setNotificationsEnabled(false);
+        }
+    }
+  };
 
   const stats = useMemo(() => {
     const totalOrders = orders.length;
@@ -53,22 +83,53 @@ const AdminPage: React.FC<AdminPageProps> = ({ onGoBack, orders, onUpdateStatus,
     e.preventDefault();
     onGoBack();
   };
+
+  const notificationButtonTooltip = notificationsEnabled 
+    ? "Desativar notificações de novos pedidos"
+    : notificationPermission === 'denied' 
+    ? "Notificações bloqueadas pelo navegador"
+    : "Ativar notificações de novos pedidos";
   
   const MainContent = () => (
     <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-white">Dashboard de Pedidos</h1>
           <p className="text-slate-400 mt-1">Visão geral dos pedidos e do faturamento.</p>
         </div>
-        <a 
-          href="#"
-          onClick={handleGoBackClick}
-          className="mt-4 sm:mt-0 flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-white font-semibold px-4 py-2 rounded-lg transition-colors text-sm"
-        >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-          Voltar ao Menu
-        </a>
+        <div className="flex items-center gap-2">
+            <div className="relative group">
+              <button
+                  title={notificationButtonTooltip}
+                  onClick={handleToggleNotifications}
+                  disabled={notificationPermission === 'denied'}
+                  className={`flex items-center justify-center h-10 w-10 rounded-lg transition-colors ${
+                      notificationPermission === 'denied'
+                          ? 'bg-slate-700 cursor-not-allowed'
+                          : notificationsEnabled
+                          ? 'bg-green-500/20 hover:bg-green-500/30'
+                          : 'bg-slate-700 hover:bg-slate-600'
+                  }`}
+              >
+                  {notificationsEnabled ? (
+                      <BellIcon className="h-5 w-5 text-green-400" />
+                  ) : (
+                      <BellSlashIcon className="h-5 w-5 text-slate-400" />
+                  )}
+              </button>
+              <span className="absolute -top-8 left-1/2 -translate-x-1/2 w-max bg-slate-900 text-white text-xs rounded-md px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                  {notificationButtonTooltip}
+              </span>
+            </div>
+            <a 
+              href="#"
+              onClick={handleGoBackClick}
+              className="flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-white font-semibold px-4 py-2 rounded-lg transition-colors text-sm"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+              Voltar ao Site
+            </a>
+        </div>
       </div>
 
 
