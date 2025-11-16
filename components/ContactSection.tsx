@@ -465,7 +465,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({ onAddOrder, currentUser
         const backButton = (className = "") => <button onClick={handleBack} className={`w-full md:w-auto bg-slate-700 hover:bg-slate-600 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:-translate-y-0.5 ${className}`}>Voltar</button>;
         const nextButton = (label: string, enabled: boolean) => <button onClick={handleNext} disabled={!enabled} className="w-full md:w-auto bg-gradient-to-r from-primary-500 to-primary-600 text-white px-8 py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary-500/30">{label}</button>;
 
-        const createAndSubmitOrder = () => {
+        const createAndSubmitOrder = (status: Order['status']) => {
              const newOrderId = generateOrderId();
              setOrderId(newOrderId);
 
@@ -479,7 +479,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({ onAddOrder, currentUser
                 sitePlan: selections.plan!.name as Order['sitePlan'],
                 hostingPlan: selections.hosting!.name as Order['hostingPlan'],
                 totalPrice: totalPrice,
-                status: 'Aguardando Confirmação',
+                status: status,
                 date: new Date().toISOString(),
             };
             onAddOrder(newOrder);
@@ -495,8 +495,8 @@ const ContactSection: React.FC<ContactSectionProps> = ({ onAddOrder, currentUser
                  return <div className="flex justify-between w-full">{backButton()}{nextButton('Revisar Pedido', isStep3Valid)}</div>;
             case 4:
                 const handleQuoteRequest = (type: 'whatsapp' | 'email') => {
-                    const newOrder = createAndSubmitOrder();
                     setConfirmationType('quote');
+                    const newOrder = createAndSubmitOrder('Pendente');
 
                     const requestSummary = `Olá!
 
@@ -557,7 +557,7 @@ ${userInfo.firstName}`;
                 );
             case 5:
                  const handleConfirmPayment = () => {
-                    createAndSubmitOrder();
+                    createAndSubmitOrder('Aguardando Confirmação');
                     handleGoToStep(6);
                 };
                 return (
