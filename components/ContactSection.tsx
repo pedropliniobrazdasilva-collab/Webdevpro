@@ -1,8 +1,9 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useContext } from 'react';
 import { PixIcon } from './icons/PixIcon.tsx';
 import { Order } from '../data/mock-orders.ts';
-import { User } from '../types/user.ts';
+import { AppContext } from '../contexts/AppContext.tsx';
 import { sitePlans, hostingOptions } from '../data/plans.ts';
+import { getPixConfig, canPayWithPix as checkCanPayWithPix } from '../data/pixConfig.ts';
 
 
 // ★★★ CONFIGURAções DO FREELANCER ★★★
@@ -14,70 +15,12 @@ const freelancerConfig = {
   // Número do WhatsApp no formato internacional (código do país + DDD + número). Ex: 5511987654321
   whatsappNumber: '5511915103290',
 };
-
-// Configuração PIX para Site Básico + Hospedagem Básica
-const pixConfigBasic = {
-  pixKey: '00020101021126580014br.gov.bcb.pix01365d7e689c-126a-46ce-8705-092fa95efb30520400005303986540561.705802BR5918PEDRO P B DA SILVA6013FRANCISCO MOR62070503***6304BA72',
-  pixQrCodeUrl: 'https://i.postimg.cc/cHmTD7GK/IMG-20251116-WA0001.jpg'
-};
-
-// Configuração PIX para Site Básico + Hospedagem Intermediária
-const pixConfigBasicIntermediate = {
-    pixKey: '00020101021126580014br.gov.bcb.pix01365d7e689c-126a-46ce-8705-092fa95efb30520400005303986540581.305802BR5918PEDRO P B DA SILVA6013FRANCISCO MOR62070503***6304B353',
-    pixQrCodeUrl: 'https://i.postimg.cc/bwy6tF7n/IMG-20251116-WA0004.jpg'
-};
-
-// Configuração PIX para Site Básico + Hospedagem Avançada
-const pixConfigBasicAdvanced = {
-  pixKey: '00020101021126580014br.gov.bcb.pix01365d7e689c-126a-46ce-8705-092fa95efb305204000053039865406108.295802BR5918PEDRO P B DA SILVA6013FRANCISCO MOR62070503***63040CC0',
-  pixQrCodeUrl: 'https://i.postimg.cc/50GfTzVC/IMG-20251116-WA0005-2.jpg'
-};
-
-// Configuração PIX para Site Intermediário + Hospedagem Básica
-const pixConfigIntermediateBasic = {
-  pixKey: '00020101021126580014br.gov.bcb.pix01365d7e689c-126a-46ce-8705-092fa95efb30520400005303986540595.805802BR5918PEDRO P B DA SILVA6013FRANCISCO MOR62070503***6304E02C',
-  pixQrCodeUrl: 'https://i.postimg.cc/q7LNxykj/IMG-20251116-WA0009.jpg'
-};
-
-// Configuração PIX para Site Intermediário + Hospedagem Intermediária
-const pixConfigIntermediateIntermediate = {
-  pixKey: '00020101021126580014br.gov.bcb.pix01365d7e689c-126a-46ce-8705-092fa95efb305204000053039865406115.405802BR5918PEDRO P B DA SILVA6013FRANCISCO MOR62070503***6304CDC7',
-  pixQrCodeUrl: 'https://i.postimg.cc/4NDPDkpP/IMG-20251116-WA0010.jpg'
-};
-
-// Configuração PIX para Site Intermediário + Hospedagem Avançada
-const pixConfigIntermediateAdvanced = {
-  pixKey: '00020101021126580014br.gov.bcb.pix01365d7e689c-126a-46ce-8705-092fa95efb305204000053039865406142.395802BR5918PEDRO P B DA SILVA6013FRANCISCO MOR62070503***6304BB22',
-  pixQrCodeUrl: 'https://i.postimg.cc/KvhS5VR8/IMG-20251116-WA0011.jpg'
-};
-
-// Configuração PIX para Site Avançado + Hospedagem Básica
-const pixConfigAdvancedBasic = {
-  pixKey: '00020101021126580014br.gov.bcb.pix01365d7e689c-126a-46ce-8705-092fa95efb305204000053039865406115.905802BR5918PEDRO P B DA SILVA6013FRANCISCO MOR62070503***6304A7C9',
-  pixQrCodeUrl: 'https://i.postimg.cc/G3yxk3Bg/IMG-20251116-WA0012.jpg'
-};
-
-// Configuração PIX para Site Avançado + Hospedagem Intermediária
-const pixConfigAdvancedIntermediate = {
-  pixKey: '00020101021126580014br.gov.bcb.pix01365d7e689c-126a-46ce-8705-092fa95efb305204000053039865406135.505802BR5918PEDRO P B DA SILVA6013FRANCISCO MOR62070503***6304477D',
-  pixQrCodeUrl: 'https://i.ibb.co/m5htxTTD/IMG-20251116-WA0013.jpg'
-};
-
-// Configuração PIX para Site Avançado + Hospedagem Avançada
-const pixConfigAdvancedAdvanced = {
-  pixKey: '00020101021126580014br.gov.bcb.pix01365d7e689c-126a-46ce-8705-092fa95efb305204000053039865406162.495802BR5918PEDRO P B DA SILVA6013FRANCISCO MOR62070503***63043971',
-  pixQrCodeUrl: 'https://i.ibb.co/jvVmgN03/IMG-20251116-WA0014.jpg'
-};
 // ★★★ FIM DAS CONFIGURAÇÕES ★★★
 
 const stepsInfo = ['Site', 'Hospedagem', 'Dados', 'Revisão', 'Pagamento', 'Confirmação'];
 
-interface ContactSectionProps {
-  onAddOrder: (order: Order) => void;
-  currentUser: User | null;
-}
-
-const ContactSection: React.FC<ContactSectionProps> = ({ onAddOrder, currentUser }) => {
+const ContactSection: React.FC = () => {
+    const { currentUser, handleAddOrder } = useContext(AppContext);
     const [step, setStep] = useState(1);
     const [selections, setSelections] = useState<{plan: typeof sitePlans[0] | null, hosting: typeof hostingOptions[0] | null}>({
         plan: null,
@@ -102,52 +45,9 @@ const ContactSection: React.FC<ContactSectionProps> = ({ onAddOrder, currentUser
         return planPrice + hostingPrice;
     }, [selections]);
 
-    const isBasicPackage = useMemo(() => 
-        selections.plan?.id === 'basico' && selections.hosting?.id === 'basica',
-        [selections.plan, selections.hosting]
-    );
-    
-    const isBasicIntermediatePackage = useMemo(() => 
-        selections.plan?.id === 'basico' && selections.hosting?.id === 'intermediaria',
-        [selections.plan, selections.hosting]
-    );
-
-    const isBasicAdvancedPackage = useMemo(() => 
-        selections.plan?.id === 'basico' && selections.hosting?.id === 'avancada',
-        [selections.plan, selections.hosting]
-    );
-    
-    const isIntermediateBasicPackage = useMemo(() => 
-        selections.plan?.id === 'intermediario' && selections.hosting?.id === 'basica',
-        [selections.plan, selections.hosting]
-    );
-
-    const isIntermediateIntermediatePackage = useMemo(() => 
-        selections.plan?.id === 'intermediario' && selections.hosting?.id === 'intermediaria',
-        [selections.plan, selections.hosting]
-    );
-
-    const isIntermediateAdvancedPackage = useMemo(() => 
-        selections.plan?.id === 'intermediario' && selections.hosting?.id === 'avancada',
-        [selections.plan, selections.hosting]
-    );
-
-    const isAdvancedBasicPackage = useMemo(() => 
-        selections.plan?.id === 'avancado' && selections.hosting?.id === 'basica',
-        [selections.plan, selections.hosting]
-    );
-
-    const isAdvancedIntermediatePackage = useMemo(() => 
-        selections.plan?.id === 'avancado' && selections.hosting?.id === 'intermediaria',
-        [selections.plan, selections.hosting]
-    );
-
-    const isAdvancedAdvancedPackage = useMemo(() => 
-        selections.plan?.id === 'avancado' && selections.hosting?.id === 'avancada',
-        [selections.plan, selections.hosting]
-    );
-
-    const canPayWithPix = useMemo(() => isBasicPackage || isBasicIntermediatePackage || isBasicAdvancedPackage || isIntermediateBasicPackage || isIntermediateIntermediatePackage || isIntermediateAdvancedPackage || isAdvancedBasicPackage || isAdvancedIntermediatePackage || isAdvancedAdvancedPackage, [isBasicPackage, isBasicIntermediatePackage, isBasicAdvancedPackage, isIntermediateBasicPackage, isIntermediateIntermediatePackage, isIntermediateAdvancedPackage, isAdvancedBasicPackage, isAdvancedIntermediatePackage, isAdvancedAdvancedPackage]);
+    const canPayWithPix = useMemo(() => 
+        selections.plan && selections.hosting ? checkCanPayWithPix(selections.plan.id, selections.hosting.id) : false,
+    [selections.plan, selections.hosting]);
 
     const generateOrderId = (): string => {
         const timestamp = Date.now().toString(36).slice(-4).toUpperCase();
@@ -288,54 +188,30 @@ const ContactSection: React.FC<ContactSectionProps> = ({ onAddOrder, currentUser
     const renderStep = () => {
         switch (step) {
             case 1:
+            case 2: {
+                const isPlanStep = step === 1;
+                const title = isPlanStep ? 'Passo 1: Escolha o Tipo de Site' : 'Passo 2: Selecione a Hospedagem';
+                const options = isPlanStep ? sitePlans : hostingOptions;
+                const currentSelection = isPlanStep ? selections.plan : selections.hosting;
+                const handleSelect = (option: any) => {
+                    setSelections(prev => isPlanStep ? {...prev, plan: option} : {...prev, hosting: option});
+                };
+
                 return (
                     <div className={stepContainerClass}>
-                        <h3 className="text-2xl font-bold text-white mb-6 text-center">Passo 1: Escolha o Tipo de Site</h3>
+                        <h3 className="text-2xl font-bold text-white mb-6 text-center">{title}</h3>
                         <div className="grid md:grid-cols-3 gap-6">
-                           {sitePlans.map(plan => {
-                                const isSelected = selections.plan?.id === plan.id;
+                           {options.map(option => {
+                                const isSelected = currentSelection?.id === option.id;
                                 const itemClass = `relative flex flex-col justify-between min-h-[190px] p-6 rounded-lg border-2 cursor-pointer transition-all duration-300 transform hover:-translate-y-1 ${
                                     isSelected 
                                         ? 'bg-primary-500/10 border-primary-500 shadow-lg shadow-primary-500/10' 
                                         : 'bg-slate-800 border-slate-700 hover:border-primary-500/50'
                                 }`;
                                 return (
-                                    <div key={plan.id} onClick={() => setSelections(prev => ({...prev, plan}))} className={itemClass}>
-                                        {plan.recommended && <span className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2 bg-primary-500 text-white px-3 py-1 rounded-full text-xs font-bold tracking-wider">MAIS POPULAR</span>}
-                                        <div className={plan.recommended ? 'pt-4' : ''}>
-                                            <h4 className="text-xl font-semibold text-white">{plan.name}</h4>
-                                            <p className="text-slate-400 text-sm mt-1 mb-4 flex-grow">{plan.description}</p>
-                                        </div>
-                                        <p className="text-3xl font-bold text-white">R$ {plan.price.toFixed(2).replace('.', ',')}</p>
-                                        {isSelected && (
-                                            <div className="absolute top-4 right-4 h-6 w-6 bg-primary-500 rounded-full flex items-center justify-center text-white">
-                                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                                </svg>
-                                            </div>
-                                        )}
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </div>
-                );
-            case 2:
-                return (
-                     <div className={stepContainerClass}>
-                        <h3 className="text-2xl font-bold text-white mb-6 text-center">Passo 2: Selecione a Hospedagem</h3>
-                        <div className="grid md:grid-cols-3 gap-6">
-                            {hostingOptions.map(option => {
-                                const isSelected = selections.hosting?.id === option.id;
-                                const itemClass = `relative flex flex-col justify-between min-h-[190px] p-6 rounded-lg border-2 cursor-pointer transition-all duration-300 transform hover:-translate-y-1 ${
-                                    isSelected 
-                                        ? 'bg-primary-500/10 border-primary-500 shadow-lg shadow-primary-500/10' 
-                                        : 'bg-slate-800 border-slate-700 hover:border-primary-500/50'
-                                }`;
-                                return (
-                                    <div key={option.id} onClick={() => setSelections(prev => ({...prev, hosting: option}))} className={itemClass}>
+                                    <div key={option.id} onClick={() => handleSelect(option)} className={itemClass}>
                                         {option.recommended && <span className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2 bg-primary-500 text-white px-3 py-1 rounded-full text-xs font-bold tracking-wider">MAIS POPULAR</span>}
-                                        <div className="pt-4">
+                                        <div className={option.recommended ? 'pt-4' : ''}>
                                             <h4 className="text-xl font-semibold text-white">{option.name}</h4>
                                             <p className="text-slate-400 text-sm mt-1 mb-4 flex-grow">{option.description}</p>
                                         </div>
@@ -353,6 +229,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({ onAddOrder, currentUser
                         </div>
                     </div>
                 );
+            }
             case 3:
                 const inputStyles = "w-full bg-slate-700/50 border-2 border-slate-600 rounded-md py-3 px-4 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition duration-200";
                 return (
@@ -399,19 +276,8 @@ const ContactSection: React.FC<ContactSectionProps> = ({ onAddOrder, currentUser
                     </div>
                 );
              case 5:
-                let pixDetails = null;
-                if (isBasicPackage) pixDetails = pixConfigBasic;
-                else if (isBasicIntermediatePackage) pixDetails = pixConfigBasicIntermediate;
-                else if (isBasicAdvancedPackage) pixDetails = pixConfigBasicAdvanced;
-                else if (isIntermediateBasicPackage) pixDetails = pixConfigIntermediateBasic;
-                else if (isIntermediateIntermediatePackage) pixDetails = pixConfigIntermediateIntermediate;
-                else if (isIntermediateAdvancedPackage) pixDetails = pixConfigIntermediateAdvanced;
-                else if (isAdvancedBasicPackage) pixDetails = pixConfigAdvancedBasic;
-                else if (isAdvancedIntermediatePackage) pixDetails = pixConfigAdvancedIntermediate;
-                else if (isAdvancedAdvancedPackage) pixDetails = pixConfigAdvancedAdvanced;
-
-
-                if (!pixDetails) return null; // Should not happen if logic is correct
+                const pixDetails = getPixConfig(selections.plan!.id, selections.hosting!.id);
+                if (!pixDetails) return null;
                 
                 return (
                     <div className={stepContainerClass}>
@@ -482,7 +348,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({ onAddOrder, currentUser
                 status: status,
                 date: new Date().toISOString(),
             };
-            onAddOrder(newOrder);
+            handleAddOrder(newOrder);
             return newOrder;
         }
 
@@ -563,20 +429,23 @@ ${userInfo.firstName}`;
                 return (
                     <div className="flex flex-col md:flex-row justify-between w-full gap-4 mt-8 max-w-3xl mx-auto">
                         {backButton()}
-                         <button onClick={handleConfirmPayment} className="w-full bg-gradient-to-r from-primary-500 to-primary-600 text-white px-6 py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary-500/30">
+                         <button onClick={handleConfirmPayment} className="w-full md:w-auto bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-lg hover:shadow-green-500/30">
                             Já Paguei, Confirmar Pedido
                         </button>
                     </div>
                 );
             case 6:
+                const isPixConfirmation = confirmationType === 'pix';
+                const finalButtonAction = isPixConfirmation ? handleReset : () => window.open('https://webdevprokp.netlify.app/#', '_self');
+                const finalButtonText = isPixConfirmation ? 'Fazer Novo Pedido' : 'Voltar ao Menu';
+
                 return (
                     <div className="flex justify-center w-full mt-8">
-                        <button onClick={handleReset} className="bg-gradient-to-r from-primary-500 to-primary-600 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary-500/30">
-                            Fazer Novo Pedido
+                        <button onClick={finalButtonAction} className="bg-gradient-to-r from-primary-500 to-primary-600 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary-500/30">
+                            {finalButtonText}
                         </button>
                     </div>
                 );
-
         }
     }
 

@@ -1,17 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { User } from '../types/user.ts';
+import React, { useState, useEffect, useContext, useMemo } from 'react';
+import { AppContext } from '../contexts/AppContext.tsx';
 import { Order } from '../data/mock-orders.ts';
 
-interface SettingsPageProps {
-  currentUser: User;
-  userOrders: Order[];
-  onGoBack: () => void;
-  onUpdateUser: (updatedUserInfo: Partial<User>) => { success: boolean, message: string };
-  onDeleteUser: () => void;
-}
-
 // Icons for UI improvement
-const DocumentTextIcon: React.FC = () => ( <svg className="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg> );
+const DocumentTextIcon: React.FC = () => ( <svg className="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2-2z" /></svg> );
 const UserCircleIcon: React.FC = () => ( <svg className="w-6 h-6 mr-3 text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z" /></svg> );
 const ExclamationTriangleIcon: React.FC = () => ( <svg className="w-6 h-6 mr-3 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg> );
 
@@ -27,9 +19,11 @@ const StatusBadge: React.FC<{ status: Order['status'] }> = ({ status }) => {
   return <span className={`${baseClasses} ${statusClasses[status]}`}>{status}</span>;
 };
 
-const SettingsPage: React.FC<SettingsPageProps> = ({ currentUser, userOrders, onGoBack, onUpdateUser, onDeleteUser }) => {
+const SettingsPage: React.FC = () => {
+  const { currentUser, orders, setView, handleUpdateUser, handleDeleteUser } = useContext(AppContext);
+
   // States for forms
-  const [newUsername, setNewUsername] = useState(currentUser.username);
+  const [newUsername, setNewUsername] = useState(currentUser!.username);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
@@ -40,9 +34,13 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ currentUser, userOrders, on
 
   // Sync local state with props to prevent stale data after updates
   useEffect(() => {
-    setNewUsername(currentUser.username);
+    setNewUsername(currentUser!.username);
   }, [currentUser]);
 
+  const userOrders = useMemo(() => {
+    if (!currentUser) return [];
+    return orders.filter(order => order.username.toLowerCase() === currentUser.username.toLowerCase());
+  }, [orders, currentUser]);
 
   const handleUsernameUpdate = (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,11 +49,11 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ currentUser, userOrders, on
         setUsernameMessage({ type: 'error', text: 'O nome de usuário não pode estar vazio.' });
         return;
     }
-    if (newUsername === currentUser.username) {
+    if (newUsername === currentUser!.username) {
         setUsernameMessage({ type: 'info', text: 'Este já é o seu nome de usuário atual.' });
         return;
     }
-    const result = onUpdateUser({ username: newUsername });
+    const result = handleUpdateUser({ username: newUsername });
     if (result.success) {
         setUsernameMessage({ type: 'success', text: result.message });
     } else {
@@ -67,7 +65,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ currentUser, userOrders, on
     e.preventDefault();
     setPasswordMessage({ type: '', text: '' });
 
-    if (currentPassword !== currentUser.password) {
+    if (currentPassword !== currentUser!.password) {
         setPasswordMessage({ type: 'error', text: 'A senha atual está incorreta.' });
         return;
     }
@@ -84,14 +82,13 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ currentUser, userOrders, on
         return;
     }
 
-    const result = onUpdateUser({ password: newPassword });
+    const result = handleUpdateUser({ password: newPassword });
     if (result.success) {
         setPasswordMessage({ type: 'success', text: 'Senha alterada com sucesso!' });
         setCurrentPassword('');
         setNewPassword('');
         setConfirmNewPassword('');
     } else {
-        // This case should not be reached with current logic, but good for future-proofing
         setPasswordMessage({ type: 'error', text: result.message || 'Ocorreu um erro ao alterar a senha.' });
     }
   };
@@ -120,27 +117,27 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ currentUser, userOrders, on
         </div>
     );
   };
-  
-  const handleGoBackClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    onGoBack();
-  };
 
   const inputStyles = "w-full bg-slate-700/50 border-2 border-slate-600 rounded-lg py-2.5 px-4 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition duration-200";
   const buttonStyles = "w-full sm:w-auto flex items-center justify-center bg-gradient-to-r from-primary-500 to-primary-600 text-white font-bold py-2.5 px-6 rounded-lg transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary-500/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0";
+
+  if (!currentUser) {
+    setView('landing');
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-slate-900 text-white font-sans animate-fade-in">
       <header className="bg-slate-900/80 backdrop-blur-sm sticky top-0 z-40 border-b border-slate-800">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
-                 <a href="#" onClick={handleGoBackClick} className="text-2xl font-bold text-white">
+                 <button onClick={() => setView('landing')} className="text-2xl font-bold text-white text-left">
                     WebDev<span className="text-primary-500">Pro</span>
-                </a>
-                <a href="#" onClick={handleGoBackClick} className="flex items-center gap-2 text-sm text-slate-300 hover:bg-slate-700 px-4 py-2 rounded-lg font-semibold transition-colors">
+                </button>
+                <button onClick={() => setView('landing')} className="flex items-center gap-2 text-sm text-slate-300 hover:bg-slate-700 px-4 py-2 rounded-lg font-semibold transition-colors">
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
                     Voltar ao Site
-                </a>
+                </button>
             </div>
         </div>
       </header>
@@ -233,7 +230,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ currentUser, userOrders, on
                     <h3 className="text-lg font-semibold text-white">Excluir sua conta</h3>
                     <p className="text-slate-300 mt-2 max-w-xl">Esta ação é permanente e não pode ser desfeita. Todos os seus dados, incluindo histórico de pedidos, serão removidos para sempre.</p>
                   </div>
-                  <button onClick={onDeleteUser} className="mt-4 sm:mt-0 flex-shrink-0 bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-6 rounded-lg transition-colors">
+                  <button onClick={handleDeleteUser} className="mt-4 sm:mt-0 flex-shrink-0 bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-6 rounded-lg transition-colors">
                     Excluir Minha Conta Permanentemente
                   </button>
                 </div>

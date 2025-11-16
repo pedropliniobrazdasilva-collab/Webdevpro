@@ -1,10 +1,5 @@
-import React, { useState } from 'react';
-import { User } from '../../types/user.ts';
-
-interface AuthWallProps {
-  onLogin: (credentials: Omit<User, 'email'>) => boolean;
-  onSignUp: (newUser: User) => boolean;
-}
+import React, { useState, useContext } from 'react';
+import { AppContext } from '../../contexts/AppContext.tsx';
 
 const inputStyles = "w-full bg-slate-700/50 border-2 border-slate-600 rounded-md py-3 px-4 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition duration-200";
 
@@ -20,7 +15,7 @@ interface LoginViewProps {
 }
 
 const LoginView: React.FC<LoginViewProps> = ({ username, password, error, onUsernameChange, onPasswordChange, onSubmit, onSwitchToSignUp }) => (
-    <form onSubmit={onSubmit} className="p-8 space-y-4 w-full animate-fade-in-fast">
+    <form onSubmit={onSubmit} className="p-8 space-y-4 w-full animate-fade-in-up-fast">
         <h2 className="text-2xl font-bold text-white text-center mb-4">Bem-vindo de volta!</h2>
         <div>
             <label className="block text-sm font-medium text-slate-300 mb-2">Nome de Usuário</label>
@@ -34,7 +29,7 @@ const LoginView: React.FC<LoginViewProps> = ({ username, password, error, onUser
         <button type="submit" className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-lg transition-colors">Entrar</button>
         <p className="text-sm text-center text-slate-400">
             Não tem uma conta?{' '}
-            <button type="button" onClick={onSwitchToSignUp} className="font-semibold text-primary-400 hover:underline">Crie uma aqui</button>
+            <button type="button" onClick={onSwitchToSignUp} className="font-semibold text-primary-400 hover:underline focus:outline-none">Crie uma aqui</button>
         </p>
     </form>
 );
@@ -54,7 +49,7 @@ interface SignUpViewProps {
 }
 
 const SignUpView: React.FC<SignUpViewProps> = ({ username, password, confirmPassword, error, onUsernameChange, onPasswordChange, onConfirmPasswordChange, onSubmit, onSwitchToLogin }) => (
-    <form onSubmit={onSubmit} className="p-8 space-y-4 w-full animate-fade-in-fast">
+    <form onSubmit={onSubmit} className="p-8 space-y-4 w-full animate-fade-in-up-fast">
         <h2 className="text-2xl font-bold text-white text-center mb-4">Crie sua Conta</h2>
         <div>
             <label className="block text-sm font-medium text-slate-300 mb-2">Nome de Usuário</label>
@@ -72,14 +67,15 @@ const SignUpView: React.FC<SignUpViewProps> = ({ username, password, confirmPass
         <button type="submit" className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-lg transition-colors">Criar Conta</button>
         <p className="text-sm text-center text-slate-400">
             Já tem uma conta?{' '}
-            <button type="button" onClick={onSwitchToLogin} className="font-semibold text-primary-400 hover:underline">Faça login</button>
+            <button type="button" onClick={onSwitchToLogin} className="font-semibold text-primary-400 hover:underline focus:outline-none">Faça login</button>
         </p>
     </form>
 );
 
 
 // --- Main AuthWall Component ---
-const AuthWall: React.FC<AuthWallProps> = ({ onLogin, onSignUp }) => {
+const AuthWall: React.FC = () => {
+  const { handleLogin, handleSignUp } = useContext(AppContext);
   const [isLoginView, setIsLoginView] = useState(true);
   
   // Login form state and logic
@@ -90,7 +86,7 @@ const AuthWall: React.FC<AuthWallProps> = ({ onLogin, onSignUp }) => {
   const handleLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError('');
-    const success = onLogin({ username: loginUsername, password: loginPassword });
+    const success = handleLogin({ username: loginUsername, password: loginPassword });
     if (!success) {
       setLoginError('Nome de usuário ou senha inválidos.');
     }
@@ -113,7 +109,7 @@ const AuthWall: React.FC<AuthWallProps> = ({ onLogin, onSignUp }) => {
         setSignUpError('As senhas não coincidem.');
         return;
     }
-    const success = onSignUp({ username: signUpUsername, password: signUpPassword });
+    const success = handleSignUp({ username: signUpUsername, password: signUpPassword });
     if (!success) {
         setSignUpError('Falha ao criar conta. O nome de usuário pode já existir.');
     }

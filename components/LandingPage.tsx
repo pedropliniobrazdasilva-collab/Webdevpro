@@ -1,6 +1,4 @@
 import React, { useEffect } from 'react';
-import { useInView } from 'react-intersection-observer';
-
 import Header from './Header.tsx';
 import HeroSection from './HeroSection.tsx';
 import AboutSection from './AboutSection.tsx';
@@ -11,24 +9,13 @@ import TestimonialsSection from './TestimonialsSection.tsx';
 import ContactSection from './ContactSection.tsx';
 import Footer from './Footer.tsx';
 import FadeInSection from './FadeInSection.tsx';
-import { Order } from '../data/mock-orders.ts';
-import { User } from '../types/user.ts';
 
 interface LandingPageProps {
   onAdminAccessClick: () => void;
-  onAddOrder: (order: Order) => void;
-  currentUser: User | null;
-  onLogout: () => void;
-  onSettingsClick: () => void;
 }
 
-const LandingPage: React.FC<LandingPageProps> = ({ 
-  onAdminAccessClick, 
-  onAddOrder, 
-  currentUser, 
-  onLogout,
-  onSettingsClick
-}) => {
+const LandingPage: React.FC<LandingPageProps> = ({ onAdminAccessClick }) => {
+  // Effect for fade-in animations on scroll
   useEffect(() => {
     const sections = document.querySelectorAll('.fade-in-section');
     const observer = new IntersectionObserver((entries) => {
@@ -47,14 +34,52 @@ const LandingPage: React.FC<LandingPageProps> = ({
     return () => sections.forEach(section => observer.unobserve(section));
   }, []);
 
+  // Effect for handling smooth scroll and preventing click/drag conflicts
+  useEffect(() => {
+    const handleSmoothScroll = (event: MouseEvent) => {
+      const target = event.currentTarget as HTMLAnchorElement;
+      const href = target.getAttribute('href');
+
+      // Ignore links that don't start with # or are just "#"
+      if (!href || !href.startsWith('#') || href.length < 2) {
+        return;
+      }
+
+      event.preventDefault();
+      
+      const targetId = href.substring(1);
+      const targetElement = document.getElementById(targetId);
+      
+      if (targetElement) {
+        // We calculate the offset to account for the sticky header (h-16 = 64px)
+        const headerOffset = 64; 
+        const elementPosition = targetElement.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+      }
+    };
+
+    // Attach event listeners to all anchor links
+    const links = document.querySelectorAll('a[href^="#"]');
+    links.forEach(link => {
+      link.addEventListener('click', handleSmoothScroll as EventListener);
+    });
+
+    // Cleanup function
+    return () => {
+      links.forEach(link => {
+        link.removeEventListener('click', handleSmoothScroll as EventListener);
+      });
+    };
+  }, []);
+
   return (
     <>
-      <Header 
-        onAdminAccessClick={onAdminAccessClick}
-        currentUser={currentUser}
-        onLogout={onLogout}
-        onSettingsClick={onSettingsClick}
-      />
+      <Header onAdminAccessClick={onAdminAccessClick} />
       <main>
         <FadeInSection><HeroSection /></FadeInSection>
         <FadeInSection><AboutSection /></FadeInSection>
@@ -62,12 +87,7 @@ const LandingPage: React.FC<LandingPageProps> = ({
         <FadeInSection><PricingSection /></FadeInSection>
         <FadeInSection><HowItWorksSection /></FadeInSection>
         <FadeInSection><TestimonialsSection /></FadeInSection>
-        <FadeInSection>
-          <ContactSection 
-            onAddOrder={onAddOrder} 
-            currentUser={currentUser}
-          />
-        </FadeInSection>
+        <FadeInSection><ContactSection /></FadeInSection>
       </main>
       <Footer />
     </>

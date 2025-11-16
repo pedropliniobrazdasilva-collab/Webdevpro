@@ -4,7 +4,7 @@ const HeroSection: React.FC = () => {
   return (
     <section id="home" className="relative py-20 md:py-32 bg-slate-900 overflow-hidden">
       <div className="absolute inset-0 bg-grid-slate-800"></div>
-      <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent"></div>
+      <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/80 to-transparent"></div>
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -24,7 +24,7 @@ const HeroSection: React.FC = () => {
             </a>
           </div>
           <div className="relative group hidden md:block">
-            <div className="absolute -inset-2.5 bg-gradient-to-r from-primary-600 to-teal-500 rounded-lg blur opacity-50 group-hover:opacity-75 transition duration-1000 group-hover:duration-200 animate-pulse"></div>
+            <div className="absolute -inset-2.5 bg-gradient-to-r from-primary-600 to-teal-500 rounded-lg blur-lg opacity-40 group-hover:opacity-60 transition duration-1000 group-hover:duration-200 animate-pulse-glow"></div>
             <img 
                 src="https://as1.ftcdn.net/v2/jpg/01/14/25/44/1000_F_114254425_hUr9iN5LROKKf6mjlt0w2x2p2AGkQ53L.jpg" 
                 alt="Mural com 'Business Plans' e uma seta de crescimento, simbolizando o crescimento de negócios." 

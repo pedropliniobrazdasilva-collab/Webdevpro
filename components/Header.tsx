@@ -1,17 +1,17 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { User } from '../types/user';
+import React, { useState, useEffect, useRef, useContext } from 'react';
+import { AppContext } from '../contexts/AppContext.tsx';
 
 interface HeaderProps {
   onAdminAccessClick: () => void;
-  currentUser: User | null;
-  onLogout: () => void;
-  onSettingsClick: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ onAdminAccessClick, currentUser, onLogout, onSettingsClick }) => {
+const Header: React.FC<HeaderProps> = ({ onAdminAccessClick }) => {
+  const { currentUser, handleLogout, setView } = useContext(AppContext);
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isProfileMenuOpen, setProfileMenuOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
+
+  const onSettingsClick = () => setView('settings');
 
   // Closes the mobile menu when a smooth scroll navigation is triggered
   useEffect(() => {
@@ -59,16 +59,16 @@ const Header: React.FC<HeaderProps> = ({ onAdminAccessClick, currentUser, onLogo
           <svg className={`w-4 h-4 transition-transform ${isProfileMenuOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
         </button>
         {isProfileMenuOpen && (
-          <div className="absolute top-full right-0 mt-2 w-48 bg-slate-800 rounded-md shadow-lg py-1 border border-slate-700 z-50">
+          <div className="absolute top-full right-0 mt-2 w-48 bg-slate-800 rounded-md shadow-lg py-1 border border-slate-700 z-50 animate-fade-in-down-fast">
             <button
               onClick={() => { onSettingsClick(); setProfileMenuOpen(false); }}
-              className="w-full text-left block px-4 py-2 text-sm text-slate-300 hover:bg-slate-700 hover:text-white"
+              className="w-full text-left block px-4 py-2 text-sm text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
             >
               Minha Conta
             </button>
             <button
-              onClick={() => { onLogout(); setProfileMenuOpen(false); }}
-              className="w-full text-left block px-4 py-2 text-sm text-slate-300 hover:bg-slate-700 hover:text-white"
+              onClick={() => { handleLogout(); setProfileMenuOpen(false); }}
+              className="w-full text-left block px-4 py-2 text-sm text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
             >
               Sair
             </button>
@@ -144,7 +144,7 @@ const Header: React.FC<HeaderProps> = ({ onAdminAccessClick, currentUser, onLogo
                   <button onClick={() => { onSettingsClick(); setMobileMenuOpen(false); }} className="w-full text-left text-gray-300 hover:bg-slate-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
                     Minha Conta
                   </button>
-                 <button onClick={() => { onLogout(); setMobileMenuOpen(false); }} className="w-full text-left text-gray-300 hover:bg-slate-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
+                 <button onClick={() => { handleLogout(); setMobileMenuOpen(false); }} className="w-full text-left text-gray-300 hover:bg-slate-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
                     Sair
                   </button>
               </>

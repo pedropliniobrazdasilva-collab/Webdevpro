@@ -60,7 +60,7 @@ const PricingSection: React.FC = () => {
         <div className="grid lg:grid-cols-3 gap-8 items-stretch">
           {pricingPlans.map((plan, index) => {
             const cardClassName = plan.highlight
-              ? 'relative flex flex-col bg-slate-900 rounded-lg shadow-xl p-8 transition-all duration-300 group border-2 border-primary-500 shadow-primary-500/20'
+              ? 'relative flex flex-col bg-slate-900 rounded-lg p-8 transition-all duration-300 group border-2 border-primary-500 animate-pulse-glow'
               : 'relative flex flex-col bg-slate-900 rounded-lg shadow-xl p-8 transition-all duration-300 group border-2 border-slate-800 hover:border-primary-500/50';
             
             const buttonClassName = plan.highlight

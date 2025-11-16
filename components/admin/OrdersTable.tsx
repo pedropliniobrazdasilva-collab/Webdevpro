@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Order } from '../../data/mock-orders.ts';
 
 interface OrdersTableProps {
@@ -25,6 +25,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewDetails, onUpda
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('Todos');
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   
   const statusOrder: Record<Order['status'], number> = {
     'Aguardando Confirmação': 1,
@@ -34,19 +35,25 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewDetails, onUpda
     'Cancelado': 5,
   };
   
+  // Effect to handle clicks outside the action menu to close it
   useEffect(() => {
-    const handleOutsideClick = () => {
-      setOpenMenuId(null);
+    const handleOutsideClick = (event: MouseEvent) => {
+      // If the ref is attached and the click is outside of the menu container, close the menu
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setOpenMenuId(null);
+      }
     };
 
+    // Only add the event listener when a menu is open
     if (openMenuId) {
-      document.addEventListener('click', handleOutsideClick);
+      document.addEventListener('mousedown', handleOutsideClick);
     }
 
+    // Cleanup function removes the listener to prevent memory leaks
     return () => {
-      document.removeEventListener('click', handleOutsideClick);
+      document.removeEventListener('mousedown', handleOutsideClick);
     };
-  }, [openMenuId]);
+  }, [openMenuId]); // Dependency ensures the effect re-runs when a menu is opened/closed
 
 
   const sortedAndFilteredOrders = useMemo(() => {
@@ -129,10 +136,9 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewDetails, onUpda
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">R$ {order.totalPrice.toFixed(2).replace('.', ',')}</td>
                 <td className="px-6 py-4 whitespace-nowrap"><StatusBadge status={order.status} /></td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
-                  <div className="relative inline-block">
+                  <div className="relative inline-block" ref={openMenuId === order.id ? menuRef : null}>
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation();
+                      onClick={() => {
                         setOpenMenuId(openMenuId === order.id ? null : order.id);
                       }}
                       className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-700 hover:bg-slate-600 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -144,10 +150,9 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewDetails, onUpda
 
                     {openMenuId === order.id && (
                       <div
-                        onClick={(e) => e.stopPropagation()}
-                        className="absolute right-0 top-full mt-2 w-56 bg-slate-700 border border-slate-600 rounded-md shadow-lg z-20 origin-top-right animate-fade-in-fast"
+                        className="absolute right-0 bottom-full mb-2 w-56 bg-slate-700 border border-slate-600 rounded-md shadow-lg z-30 origin-bottom-right animate-fade-in-up-fast"
                       >
-                        <div className="py-1">
+                        <div className="py-1 max-h-48 overflow-y-auto">
                           <button onClick={() => { onViewDetails(order); setOpenMenuId(null); }} className="w-full text-left flex items-center px-4 py-2 text-sm text-slate-200 hover:bg-primary-500 hover:text-white transition-colors rounded-t-md">
                             <svg className="w-4 h-4 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                             Ver Detalhes
