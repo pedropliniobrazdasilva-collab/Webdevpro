@@ -117,6 +117,9 @@ const AuthWall: React.FC = () => {
   
   return (
     <div className="fixed inset-0 z-50 bg-slate-900 flex flex-col items-center justify-center p-4">
+       <div className="absolute top-4 right-4 z-20">
+        <span className="text-xs font-mono text-slate-500 bg-slate-800/50 px-2 py-1 rounded">versão 1.0</span>
+       </div>
        <div className="absolute inset-0 bg-grid-slate-800"></div>
        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent"></div>
        
