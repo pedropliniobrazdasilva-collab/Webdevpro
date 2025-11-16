@@ -64,7 +64,7 @@ const TestimonialsSection: React.FC = () => {
                 <p className="text-slate-300 italic flex-grow">"{testimonial.quote}"</p>
               </div>
               <div className="flex items-center mt-6 border-t border-slate-700 pt-6">
-                <img className="w-12 h-12 rounded-full mr-4" src={testimonial.image} alt={testimonial.name} />
+                <img className="w-12 h-12 rounded-full mr-4" src={testimonial.image} alt={testimonial.name} loading="lazy" decoding="async" />
                 <div>
                   <p className="font-semibold text-white">{testimonial.name}</p>
                   <p className="text-sm text-primary-400">{testimonial.role}</p>

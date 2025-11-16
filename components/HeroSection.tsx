@@ -29,6 +29,7 @@ const HeroSection: React.FC = () => {
                 src="https://as1.ftcdn.net/v2/jpg/01/14/25/44/1000_F_114254425_hUr9iN5LROKKf6mjlt0w2x2p2AGkQ53L.jpg" 
                 alt="Mural com 'Business Plans' e uma seta de crescimento, simbolizando o crescimento de negócios." 
                 className="relative rounded-lg shadow-2xl z-10 w-full"
+                fetchpriority="high"
             />
           </div>
         </div>
