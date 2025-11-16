@@ -141,8 +141,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewDetails, onUpda
                       if (!menuRefs.current[order.id]) menuRefs.current[order.id] = { wrapper: null, button: null };
                       menuRefs.current[order.id].button = el;
                     }}
-                    onClick={(e) => {
-                      e.stopPropagation();
+                    onClick={() => {
                       setOpenMenuId(openMenuId === order.id ? null : order.id);
                     }}
                     className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-700 hover:bg-slate-600 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -158,7 +157,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewDetails, onUpda
                         if (!menuRefs.current[order.id]) menuRefs.current[order.id] = { wrapper: null, button: null };
                         menuRefs.current[order.id].wrapper = el;
                       }}
-                      className="absolute right-0 top-full mt-2 w-56 bg-slate-700 border border-slate-600 rounded-md shadow-lg z-20 animate-fade-in-fast origin-top-right"
+                      className="absolute right-0 top-full mt-2 w-56 bg-slate-700 border border-slate-600 rounded-md shadow-lg z-20 origin-top-right"
                     >
                       <div className="py-1">
                         <button onClick={() => { onViewDetails(order); setOpenMenuId(null); }} className="w-full text-left flex items-center px-4 py-2 text-sm text-slate-200 hover:bg-primary-500 hover:text-white transition-colors rounded-t-md">
